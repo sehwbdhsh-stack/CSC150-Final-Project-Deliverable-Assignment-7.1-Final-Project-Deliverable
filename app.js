@@ -41,15 +41,9 @@ export default function App() {
       "Nice energy! Let’s get things done efficiently.",
     ];
 
-    if (mood === "negative") {
-      return negativeResponses[
-        Math.floor(Math.random() * negativeResponses.length)
-      ];
-    }
-
-    return positiveResponses[
-      Math.floor(Math.random() * positiveResponses.length)
-    ];
+    return mood === "negative"
+      ? negativeResponses[Math.floor(Math.random() * negativeResponses.length)]
+      : positiveResponses[Math.floor(Math.random() * positiveResponses.length)];
   };
 
   const sendMessage = () => {
@@ -66,25 +60,26 @@ export default function App() {
     setInput("");
   };
 
-  const generateStudyPlan = () => {
-    return [
-      "Math - 30 min",
-      "AI concepts - 45 min",
-      "Break - 10 min",
-      "Coding practice - 60 min",
-    ];
-  };
+  const generateStudyPlan = () => [
+    "Math - 30 min",
+    "AI concepts - 45 min",
+    "Break - 10 min",
+    "Coding practice - 60 min",
+  ];
 
   return (
     <div style={{ padding: 20, fontFamily: "Arial", maxWidth: 500 }}>
       <h1>MindMate AI</h1>
 
       <div style={{ marginBottom: 20 }}>
+        {chat.length === 0 && <p>No messages yet...</p>}
+
         {chat.map((msg, i) => (
           <p key={i}>
             <b>{msg.role}:</b> {msg.text}
           </p>
         ))}
+
         <div ref={chatEndRef} />
       </div>
 
@@ -94,6 +89,7 @@ export default function App() {
         placeholder="Talk to AI..."
         style={{ width: "70%", padding: 8 }}
       />
+
       <button onClick={sendMessage} style={{ padding: 8 }}>
         Send
       </button>
