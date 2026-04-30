@@ -1,18 +1,29 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 
 export default function App() {
   const [input, setInput] = useState("");
   const [chat, setChat] = useState([]);
+
+  const chatEndRef = useRef(null);
+
+  useEffect(() => {
+    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [chat]);
 
   const analyzeSentiment = (text) => {
     const negativeWords = ["stress", "tired", "angry", "sad", "overwhelmed"];
     const positiveWords = ["good", "great", "happy", "motivated", "ready"];
 
     let score = 0;
-    text.split(" ").forEach(word => {
-      if (negativeWords.includes(word)) score--;
-      if (positiveWords.includes(word)) score++;
-    });
+
+    text
+      .toLowerCase()
+      .replace(/[^\w\s]/g, "")
+      .split(" ")
+      .forEach((word) => {
+        if (negativeWords.includes(word)) score--;
+        if (positiveWords.includes(word)) score++;
+      });
 
     return score < 0 ? "negative" : "positive";
   };
@@ -20,18 +31,36 @@ export default function App() {
   const generateResponse = (text) => {
     const mood = analyzeSentiment(text);
 
+    const negativeResponses = [
+      "I detect stress. Try breaking tasks into smaller steps.",
+      "It’s okay to feel overwhelmed — let’s simplify your workload.",
+    ];
+
+    const positiveResponses = [
+      "You’re in a great mindset 🚀 Let’s maximize productivity.",
+      "Nice energy! Let’s get things done efficiently.",
+    ];
+
     if (mood === "negative") {
-      return "I detect you're feeling stressed. Let's break tasks into smaller steps.";
+      return negativeResponses[
+        Math.floor(Math.random() * negativeResponses.length)
+      ];
     }
-    return "You seem good! Let’s maximize your study productivity 🚀";
+
+    return positiveResponses[
+      Math.floor(Math.random() * positiveResponses.length)
+    ];
   };
 
   const sendMessage = () => {
+    if (!input.trim()) return;
+
     const response = generateResponse(input);
 
-    setChat([...chat, 
+    setChat((prev) => [
+      ...prev,
       { role: "user", text: input },
-      { role: "ai", text: response }
+      { role: "ai", text: response },
     ]);
 
     setInput("");
@@ -42,28 +71,32 @@ export default function App() {
       "Math - 30 min",
       "AI concepts - 45 min",
       "Break - 10 min",
-      "Coding practice - 60 min"
+      "Coding practice - 60 min",
     ];
   };
 
   return (
-    <div style={{ padding: 20, fontFamily: "Arial" }}>
+    <div style={{ padding: 20, fontFamily: "Arial", maxWidth: 500 }}>
       <h1>MindMate AI</h1>
 
-      <div>
+      <div style={{ marginBottom: 20 }}>
         {chat.map((msg, i) => (
           <p key={i}>
             <b>{msg.role}:</b> {msg.text}
           </p>
         ))}
+        <div ref={chatEndRef} />
       </div>
 
       <input
         value={input}
         onChange={(e) => setInput(e.target.value)}
         placeholder="Talk to AI..."
+        style={{ width: "70%", padding: 8 }}
       />
-      <button onClick={sendMessage}>Send</button>
+      <button onClick={sendMessage} style={{ padding: 8 }}>
+        Send
+      </button>
 
       <hr />
 
